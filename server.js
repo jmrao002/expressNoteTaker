@@ -43,5 +43,10 @@ app.post("/api/notes", (req, res) => {
   res.json(newNote);
 });
 
+// Deletes notes
+app.delete("/api/notes", (req, res) => {
+  
+})
+
 // Starts the server to begin listening
 app.listen(PORT, () => console.log(`App listening on PORT ${PORT}`));
