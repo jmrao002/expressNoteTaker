@@ -2,63 +2,45 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const util = require("util");
+const writeFileAsync = util.promisify(fs.writeFile);
+const { uuid } = require("uuid");
 
 // Sets up the Express App
 const app = express();
-const PORT = process.env.port || 3000;
+const PORT = process.env.port || 3001;
 
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use("/static", express.static("./static/"));
 
-// Routes
+let notes = [];
+
+// HTML Routes
+// Displays notes page
 app.get("/notes", (req, res) =>
-  res.sendFile(path.join(__dirname, "./Develop/public/notes.html"))
+  res.sendFile(path.join(__dirname, "/public/notes.html"))
 );
 
-// Displays all notes by return all data in the database
-app.get("/api/notes", (req, res) => res.json(notes));
-
-// Gets a specific note from the notes database
-app.get("/api/notes/:id", (req, res) => {
-  let recordedNotes = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
-  res.json(recordedNotes[Number(req.params.id)]);
+// Displays all notes by returning all data in the database
+app.get("/api/notes", (req, res) => {
+  res.sendFile(path.join(__dirname, "./db/db.json"));
 });
 
 // Basic route that sends user to the first page
 app.get("*", (req, res) =>
-  res.sendFile(path.join(__dirname, "./Develop/public/index.html"))
+  res.sendFile(path.join(__dirname, "/public/index.html"))
 );
 
-// Create new notes
+// Create new notes and return
 app.post("/api/notes", (req, res) => {
-  let recordedNotes = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
   let newNote = req.body;
-  let uniqueID = savedNotes.length.toString();
-  newNote.id = uniqueID;
-  recordedNotes.push(newNote);
-
-  fs.writeFileSync("./db/db.json", JSON.stringify(recordedNotes));
-  res.json(recordedNotes);
-});
-
-// Delete notes
-app.delete("/api/notes/:id", function (req, res) {
-  let recordedNotes = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
-  let noteID = req.params.id;
-  let newID = 0;
-  console.log(`Deleting note with ID ${noteID}`);
-  recordedNotes = recordedNotes.filter((currNote) => {
-    return currNote.id != noteID;
-  });
-
-  for (currNote of recordedNotes) {
-    currNote.id = newID.toString();
-    newID++;
-  }
-
-  fs.writeFileSync("./db/db.json", JSON.stringify(recordedNotes));
-  res.json(recordedNotes);
+  newNote.id = uuid;
+  notes.push(newNote);
+  // pushes updated data to database
+  writeFileAsync(path.join(__dirname, "./db/db.json"), JSON.stringify(notes));
+  res.json(newNote);
 });
 
 // Starts the server to begin listening
