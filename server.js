@@ -47,7 +47,6 @@ app.post("/api/notes", (req, res) => {
 app.delete("/api/notes/:id", (req, res) => {
   notes = notes.filter((note) => note.id !== req.params.id);
   fs.writeFileSync(path.join(__dirname, dbPath), JSON.stringify(notes));
-  // writeFileAsync(path.join(__dirname, dbPath), JSON.stringify(notes));
   res.json(notes);
 });
 
