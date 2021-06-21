@@ -3,7 +3,6 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const { uuid } = require("uuid");
-const express = require("express");
 
 // Sets up the Express App
 const app = express();
