@@ -2,9 +2,8 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-// const util = require("util");
-// const writeFileAsync = util.promisify(fs.writeFile);
 const { uuid } = require("uuid");
+const e = require("express");
 
 // Sets up the Express App
 const app = express();
@@ -18,6 +17,7 @@ app.use("/static", express.static("./static/"));
 // shorteners
 const dirPub = path.join(__dirname, "/public");
 const dbPath = "./db/db.json";
+let notes = JSON.parse(fs.readFileSync(dbPath, "utf8"));
 
 // HTML Routes
 // Displays notes page
@@ -31,19 +31,19 @@ app.get("/api/notes", (req, res) => {
 // Basic route that sends user to the first page
 app.get("*", (req, res) => res.sendFile(path.join(dirPub, "index.html")));
 
+// API routes
 // Create new notes and return
 app.post("/api/notes", (req, res) => {
-  let notes = JSON.parse(fs.readFileSync(dbPath, "utf8"));
   let newNote = req.body;
   newNote.id = uuid;
   notes.push(newNote);
   // pushes updated data to database
-  fs.writeFileSync(dbpath, JSON.stringify(notes));
+  fs.writeFileSync(dbPath, JSON.stringify(notes));
   res.json(notes);
 });
 
-// Deletes notes
-// app.delete("/api/notes", (req, res) => {});
+// // Deletes notes
+// app.delete("/api/notes/:id", (req, res) => {});
 
 // Starts the server to begin listening
 app.listen(PORT, () => console.log(`App listening on PORT ${PORT}`));
