@@ -2,6 +2,8 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const util = require("util");
+const writeFileAsync = util.promisify(fs.writeFile);
 const { v4: uuidv4 } = require("uuid");
 
 // Sets up the Express App
@@ -42,7 +44,12 @@ app.post("/api/notes", (req, res) => {
 });
 
 // Deletes notes
-app.delete("/api/notes/:id", (req, res) => {});
+app.delete("/api/notes/:id", (req, res) => {
+  notes = notes.filter((note) => note.id !== req.params.id);
+  fs.writeFileSync(path.join(__dirname, dbPath), JSON.stringify(notes));
+  // writeFileAsync(path.join(__dirname, dbPath), JSON.stringify(notes));
+  res.json(notes);
+});
 
 // Starts the server to begin listening
 app.listen(PORT, () => console.log(`App listening on PORT ${PORT}`));
